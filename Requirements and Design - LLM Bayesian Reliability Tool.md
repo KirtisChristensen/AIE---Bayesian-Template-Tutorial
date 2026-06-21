@@ -296,6 +296,92 @@ Gate:
 - Compare dynamic output versus existing hardcoded PyMC cell.
 - Add pass/fail assertions for posterior mean and interval sanity.
 
+### Increment C — Robust LLM Output Handling (Implemented)
+- Field-level repair (`repair_model_json`) patches partially-valid LLM JSON
+  instead of rejecting it; preserves valid LLM content (names, descriptions,
+  justifications) and surfaces a "Repairs applied" report.
+- Parameter-name normalization (`normalize_model_parameters`) maps LLM-emitted
+  parameter spellings to canonical PyMC names per distribution family (e.g.
+  Poisson `lambda` -> `mu`, Normal `mean`/`std_dev` -> `mu`/`sigma`,
+  Gamma `scale` -> `beta = 1/scale`). Runs on every validation pass so the
+  latent downstream issues never reach the model builder.
+- Degenerate-scale guard coerces `sigma <= 0` to a small positive epsilon and
+  suggests switching to `distribution_family: 'Constant'` for true fixed values.
+- Schema expanded to accept discrete/multi-outcome families that the LLM
+  legitimately emits (Categorical, Bernoulli, DiscreteUniform, Multinomial,
+  Dirichlet, MvNormal). Dynamic builder still auto-builds only Gamma-Poisson;
+  other families pass validation and either fall back to OFFLINE_JSON or wait
+  for the generalized builder in the backlog.
+
+## 12.1 Backlog — Deferred Robustness Items
+Captured but not implemented. Each item is independent of the others except
+where noted.
+
+### Backlog Item B — Build-Time Parameter Tolerance in the Dynamic Builder
+- **What**: Move parameter-spelling tolerance from the up-front normalization
+  pass into each per-family builder in the Dynamic Model Builder. Each builder
+  would accept the canonical PyMC parameter names AND a small alias set when
+  it constructs the PyMC variable, rather than relying on a JSON rewrite.
+- **Why defer**: The current notebook only auto-builds Gamma-Poisson. The
+  centralized normalization step (Increment C) covers every consumer at once.
+  Per-builder tolerance only pays off when the builder roster grows.
+- **Trigger to pull from backlog**: When the dynamic builder is generalized
+  beyond Gamma-Poisson (Phase 3 expansion), revisit whether per-builder
+  tolerance is still needed in addition to the central normalization, or
+  whether to consolidate on one location for clarity.
+- **Effort estimate**: Small per family. Larger only because it must be
+  repeated for every family the builder supports.
+- **Risk if skipped**: None today. Future risk only emerges if a builder is
+  added that legitimately needs to consume a JSON parameter spelling that the
+  central normalization step has not anticipated. The visible "Repairs
+  applied" report makes such gaps easy to find in workshop dry-runs.
+
+### Backlog Item C — Prompt-Side Hardening of Parameter Names
+- **What**: Extend `SYSTEM_PROMPT` in the reusable primitives cell with an
+  explicit per-family table of canonical PyMC parameter names so the LLM is
+  asked to emit `Poisson: mu`, `Normal: mu/sigma`, etc. directly. This is a
+  small (~10 line) prompt addition with no code changes elsewhere.
+- **Why defer**: Increment C (already in place) makes the downstream pipeline
+  tolerant regardless of LLM behavior, so this is defense-in-depth rather
+  than a correctness fix. Also, prompt edits can have unintended effects on
+  other parts of LLM output and need a regression sweep across all three
+  scenarios in `SCENARIO_LIBRARY` before being adopted.
+- **Trigger to pull from backlog**: If a workshop dry-run shows that the
+  "Repairs applied" panel routinely contains many parameter renames and the
+  output is distracting for participants, the prompt-side fix becomes the
+  cleanest way to reduce noise. Also a natural item to ship alongside any
+  future change to `SYSTEM_PROMPT` for other reasons.
+- **Effort estimate**: Very small to write; the cost is the regression sweep
+  to confirm no scenario degrades.
+- **Risk if skipped**: None to correctness — the normalization layer makes
+  this purely cosmetic. Possible cost in workshop polish if the repair panel
+  becomes long.
+- **Interaction with B**: If Backlog Item B is pulled in first, Backlog Item
+  C becomes essentially redundant for correctness. The remaining motivation
+  for C would be reducing the visible repair-note count to keep the
+  facilitator panel clean. See Section 12.2 for the explicit dependency
+  analysis.
+
+## 12.2 Dependency Note — Is Backlog Item C Necessary If B Is Adopted?
+- **Short answer**: No, C is not necessary for correctness if B is adopted.
+  It remains worthwhile only as a workshop-UX polish item.
+- **Reasoning**:
+  - Increment C (delivered) normalizes parameter names centrally before any
+    consumer sees them. Every consumer downstream is protected.
+  - Backlog Item B would push that same tolerance into each per-family
+    builder. Either layer alone is sufficient to keep the pipeline correct.
+    Doing both is belt-and-suspenders, not additive correctness.
+  - Backlog Item C (prompt-side fix) prevents the LLM from producing the
+    near-miss spellings in the first place. Its only independent benefit
+    over B (or over the already-implemented Increment C) is that the
+    "Repairs applied" panel stays short, which matters in a live tutorial.
+- **Recommendation if B is later prioritized**:
+  - Skip C unless the workshop dry-run shows the repair-note panel is
+    visibly distracting for participants.
+  - If skipping C, document in the facilitator guide that a non-empty
+    "Repairs applied" panel is *expected and educational* — it makes the
+    tool's robustness layer visible to learners.
+
 ## 13. Acceptance Evidence per Phase
 Each phase requires:
 - Reproducible run output (notebook or logs).
