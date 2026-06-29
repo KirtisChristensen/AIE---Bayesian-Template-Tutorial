@@ -1,3 +1,7 @@
+# SE&ATN 2026 Tutorial — Python dependency list
+# Install with:  pip install -r requirements.txt
+# (Conda users: use environment.yml instead)
+
 # Core scientific stack
 numpy>=1.26
 scipy>=1.13
@@ -18,4 +22,4 @@ ipywidgets>=8.1
 
 # LLM abstraction + validation (used in extended notebook variants)
 litellm==1.74.9
-pydantic>=2.11.7
+pydantic>=2.11
