@@ -4,7 +4,27 @@
 
 ---
 
-## Do This BEFORE the Tutorial (15–20 min)
+## Choose Your Setup Path
+
+---
+
+### Path 1 — Google Colab (Easiest, Recommended)
+
+No installation needed. Just a browser and a Google account.
+
+1. **Get the notebook link** from the facilitator — or go to [colab.research.google.com](https://colab.research.google.com) and upload `llm_bayesian_reliability_tool_SE-ATN-2026.ipynb` via *File → Upload notebook*
+2. **Add your API key as a Colab Secret:**
+   - Click the 🔑 **key icon** in the left sidebar → *Secrets* tab → *Add new secret*
+   - Name: `OPENAI_API_KEY` | Value: your key (starts with `sk-`)
+   - Toggle **Notebook access** ON
+3. **Runtime → Run all** — packages install automatically in ~2–3 min, then follow along
+
+> No key yet? See Step 3 below for how to get one (2 min, costs under $0.01 for this tutorial).  
+> Facilitator may also provide a temporary workshop key — add it the same way.
+
+---
+
+### Path 2 — Local Install (Do This BEFORE the Tutorial, 15–20 min)
 
 ### Step 1 — Install Python (if you don't have it)
 
