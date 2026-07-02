@@ -12,7 +12,9 @@
 
 No installation needed. Just a browser and a Google account.
 
-1. **Get the notebook link** from the facilitator — or go to [colab.research.google.com](https://colab.research.google.com) and upload `llm_bayesian_reliability_tool_SE-ATN-2026.ipynb` via *File → Upload notebook*
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/KirtisChristensen/AIE---Bayesian-Template-Tutorial/blob/main/Publish/SE-ATN-2026/llm_bayesian_reliability_tool_SE-ATN-2026.ipynb)
+
+1. **Click the badge above** (or get the link from the facilitator) to open directly in Colab — or go to [colab.research.google.com](https://colab.research.google.com) and upload `llm_bayesian_reliability_tool_SE-ATN-2026.ipynb` via *File → Upload notebook*
 2. **Add your API key as a Colab Secret:**
    - Click the 🔑 **key icon** in the left sidebar → *Secrets* tab → *Add new secret*
    - Name: `OPENAI_API_KEY` | Value: your key (starts with `sk-`)
