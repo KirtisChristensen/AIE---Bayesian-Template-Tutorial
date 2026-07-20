@@ -1,198 +1,204 @@
 # Requirements and Design Document
 
 ## Project
-Reusable LLM-Driven Bayesian AIE Notebook Suite for Workshop Delivery
+LLM-Driven Bayesian Modeling Tool for Reliability and Predictive Maintenance
 
 ## Version
-- Version: 0.2
-- Date: 2026-06-19
-- Status: Draft for stakeholder review
+- Version: 0.1 (Draft for review)
+- Date: 2026-05-01
+- Status: Pending stakeholder validation
 
 ## 1. Purpose
-Define requirements and technical design for a reusable set of Jupyter notebooks that help participants move from natural-language problem descriptions to Bayesian decision analysis using the Applied Information Economics (AIE) workflow.
+Define requirements and technical design for an AI-assisted tool that converts natural-language reliability problems and available evidence into a structured Bayesian workflow aligned to Hubbard's Applied Information Economics (AIE).
 
-This program is tutorial-first: setup and operation simplicity are primary design constraints.
+This document is organized for phased, incremental delivery. Each phase requires explicit approval before the next phase begins.
 
-## 2. Product Vision
-Create one core notebook framework plus scenario-specific notebook variants (reliability, maintenance, risk, and adjacent domains) that share a common architecture:
-- AIE step-by-step flow
-- LLM problem parsing into structured Bayesian JSON
-- Prior and likelihood mapping
-- Bayesian updating and decision outputs
-- Value of Information and Monte Carlo analysis
-
-## 3. Scope
+## 2. Scope
 ### In Scope
-- Reusable notebook template structure and conventions.
-- Clear participant onboarding and environment setup paths.
-- Prompt-to-JSON model extraction with schema validation.
-- Dynamic model mapping path (from JSON to runnable Bayesian model).
-- Offline fallback path for workshop continuity.
-- Tutorial-grade outputs: DAG, posterior summaries, cost/risk comparisons, recommendations.
+- Parse reliability problem descriptions into structured Bayesian model JSON.
+- Map uncertainties into priors, likelihood, posterior, and decision/cost nodes.
+- Support Value of Information (VoI) ranking for measurement prioritization.
+- Run Bayesian updating and Monte Carlo decision analysis.
+- Produce clear visual artifacts (DAG, posterior/cost plots) and recommendations.
+- Provide tutorial-grade notebook flow for RAMT/RAMS-style training use.
 
-### Out of Scope (Current Program)
-- Production SaaS application with user accounts and backend services.
-- Enterprise data connectors (CMMS, ERP, historians) as first-class integrations.
-- Regulatory submission workflows.
-- Real-time streaming model updates.
+### Out of Scope (Current Prototype)
+- Full production deployment (web app, auth, multi-user backend).
+- Regulatory-grade certification workflow automation.
+- Automatic ingestion from enterprise CMMS/ERP systems.
+- Real-time streaming telemetry infrastructure.
 
-## 4. Stakeholders and User Roles
-- Product Owner / Workshop Lead: Kirtis Christensen
-- Technical Co-Design: Bayesian method mentor role
-- Primary Users: workshop participants, reliability engineers, analysts
-- Secondary Users: collaborators, reviewers, conference audience
+## 3. Stakeholders and Roles
+- Tool Strategist/Product Owner: Kirtis Christensen
+- Technical Mentor/Method Co-Designer: Bayesian mentor role
+- Primary Users: Reliability engineers, maintainability analysts, risk analysts, tutorial participants
+- Secondary Users: Conference reviewers, research collaborators
 
-## 5. Problem Statement
-Current Bayesian adoption barriers in workshop settings:
-1. Modeling barrier: users struggle to map natural-language uncertainty into priors and likelihoods.
-2. Setup barrier: environments, dependencies, and API credentials fail during live sessions.
-3. Reuse barrier: one-off notebooks are hard to adapt across scenarios.
+## 4. Problem Statement
+Current practice faces two repeat issues:
+1. Distribution quality: weak or mismatched distribution assumptions.
+2. Parameter mapping: uncertainty about where each observed or elicited quantity belongs in Bayesian structure.
 
-The notebook suite must reduce all three barriers while preserving methodological rigor.
+The tool must reduce both issues by making model structure explicit, testable, and repeatable.
 
-## 6. Success Criteria
-### Workshop Success
-- New participant can execute the guided path end-to-end in under 20 minutes of setup.
-- Notebook run order and credential setup are explicit and self-correcting.
-- At least one no-key/no-cloud execution path exists (offline JSON and/or local model option).
-
+## 5. Success Criteria
 ### Technical Success
-- JSON model contract is validated before downstream inference.
-- Dynamic mapping from model JSON to executable Bayesian model is demonstrated for approved model classes.
-- Statistical outputs are reproducible with fixed seeds and documented tolerances.
+- End-to-end notebook execution is reproducible in a clean environment.
+- Structured JSON output passes schema validation for target scenarios.
+- Bayesian numerical checks pass analytical and simulation consistency tests.
+- Decision output includes uncertainty, confidence bounds, and traceable assumptions.
 
-### Reuse Success
-- Same template supports at least 3 scenario variants with minimal code edits.
-- New scenario onboarding requires only: decision frame updates, prompt tuning, and test cases.
+### User Success
+- A reliability engineer can run the guided workflow with minimal intervention.
+- Each output includes a plain-language rationale suitable for tutorial and review.
+- Phase gates provide auditable checkpoints before advancing scope.
 
-## 7. Functional Requirements
-### FR-1 Guided Workshop Flow
-System shall provide clearly labeled step-by-step cells from setup to recommendation.
-
-Acceptance:
-- User can follow cell order without external instructions.
-- Step headers and run order are consistent across notebook variants.
-
-### FR-2 Environment and Dependency Setup
-System shall support simple local setup, plus fallback options when package tooling differs.
-
-Acceptance:
-- Fresh environment setup succeeds using documented commands.
-- Missing package diagnostics are actionable.
-
-### FR-3 Credential Setup Options
-System shall provide explicit runtime options:
-- Personal API key path
-- Temporary workshop key path
-- Local no-key path when supported
+## 6. Functional Requirements
+### FR-1 Problem Framing Input
+- System shall capture decision frame fields:
+- Problem description
+- Decision options
+- Objective function
+- Time horizon
+- Cost parameters
+- Observed evidence
+- Optional prior range/elicitation inputs
 
 Acceptance:
-- Notebook can detect whether required credentials are present.
-- Clear warnings appear before model calls when credentials are missing.
+- Required fields validated before parser call.
+- Missing or malformed fields produce actionable messages.
 
-### FR-4 Natural-Language to Bayesian JSON
-System shall convert problem description text into structured model JSON.
-
-Acceptance:
-- JSON parse succeeds.
-- Required fields exist and are typed.
-
-### FR-5 Schema Validation and Guardrails
-System shall validate model JSON before inference or DAG rendering.
-
-Acceptance:
-- Invalid JSON yields readable diagnostics and blocks unsafe downstream execution.
-
-### FR-6 Dynamic Model Builder (Core Program Requirement)
-System shall map validated model JSON into executable Bayesian models for approved families.
-
-Phase-1 approved family set:
-- Gamma-Poisson
-- Normal linear regression
-- Binomial-Beta
-
-Acceptance:
-- For each approved family, generated model runs and produces posterior summary.
-- Unit test prompts map to correct family and parameter names.
-
-### FR-7 Offline and Continuity Mode
-System shall include a full fallback path that does not require external LLM APIs.
-
-Acceptance:
-- Workshop can continue if external API is unavailable.
-
-### FR-8 VoI and Decision Analysis
-System shall compute EVPI-style metrics and run Monte Carlo strategy comparison.
-
-Acceptance:
-- Outputs include mean/quantile summaries and recommendation confidence.
-
-### FR-9 Explainability and Traceability
-System shall provide visible reasoning artifacts:
-- node definitions
-- dependencies
-- update chain
-- assumptions
-
-Acceptance:
-- DAG and summary text are generated from model structure.
-- All key assumptions are inspectable in notebook outputs.
-
-### FR-10 Reusable Template Packaging
-System shall define a standard template and naming conventions for new notebook variants.
-
-Acceptance:
-- New variant can be created from template with a checklist and pass baseline tests.
-
-## 8. Non-Functional Requirements
-### NFR-1 Simplicity
-- Minimal participant setup steps.
-- Explicit error recovery for common workshop failures.
-
-### NFR-2 Reproducibility
-- Fixed seeds, pinned dependencies, and deterministic parser settings where possible.
-
-### NFR-3 Portability
-- Works on local Jupyter and Colab with documented differences.
-
-### NFR-4 Reliability
-- Graceful handling for missing keys, unavailable models, and network failures.
-
-### NFR-5 Maintainability
-- Shared helper utilities and common cell patterns across notebooks.
-
-## 9. Architecture and Design
-### 9.1 Layered Notebook Architecture
-1. Input Layer
-- Decision frame and scenario metadata.
-
-2. Runtime Setup Layer
-- Dependency checks, environment checks, credential checks.
-
-3. Parsing Layer
-- Prompt templates and LLM calls.
-- JSON parsing and schema validation.
-
-4. Model Layer
-- Distribution mapping registry.
-- Dynamic model builder for approved model families.
-
-5. Analysis Layer
-- Posterior diagnostics, VoI, Monte Carlo decision simulation.
-
-6. Presentation Layer
-- DAG, tables, plots, recommendation narrative.
-
-### 9.2 Data Contract (Canonical JSON)
-Top-level keys:
+### FR-2 LLM-to-JSON Bayesian Parser
+- System shall convert natural-language problem text to machine-readable Bayesian JSON.
+- JSON shall include:
 - problem_summary
 - decision
-- measurement_nodes
-- bayesian_update_chain
-- voi_candidates
+- measurement_nodes[]
+- bayesian_update_chain[]
+- voi_candidates[]
 - model_notes
 
-Each node includes:
+Acceptance:
+- JSON parses successfully.
+- Node names unique and dependency graph acyclic.
+- Required node attributes present and typed.
+
+### FR-3 Schema Validation
+- System shall validate parser output against a strict schema.
+- System shall reject invalid structures and provide error diagnostics.
+
+Acceptance:
+- 100% schema pass on approved test prompt set for phase gate.
+
+### FR-4 Offline Fallback Mode
+- System shall include a local/offline example JSON and execution path.
+- Workflow shall run without external API dependency.
+
+Acceptance:
+- Offline mode produces complete outputs from VoI through decision recommendation.
+
+### FR-5 Bayesian Inference Engine
+- System shall support prior/likelihood/posterior execution using PyMC.
+- System shall expose posterior summaries and diagnostics.
+
+Acceptance:
+- Posterior generated without runtime errors.
+- Diagnostics produced for key modeled parameters.
+
+### FR-6 Value of Information (VoI)
+- System shall compute EVPI for selected uncertainties.
+- System shall present interpretation against measurement-cost threshold.
+
+Acceptance:
+- EVPI value is numerically stable across reruns with fixed seed.
+- EVPI interpretation text updates from threshold logic.
+
+### FR-7 Monte Carlo Decision Analysis
+- System shall propagate posterior uncertainty to decision cost distributions.
+- System shall output comparative strategy metrics and recommendation.
+
+Acceptance:
+- Strategy summary table and plots generated.
+- Recommendation includes probability one strategy is cheaper.
+
+### FR-8 DAG and Explainability Outputs
+- System shall visualize model dependency DAG and update chain.
+- System shall provide plain-language explanation for distribution choices.
+
+Acceptance:
+- DAG renders with node-role color mapping.
+- Explanation fields present for all measurement nodes.
+
+### FR-9 Guided Tutorial Workflow
+- System shall provide sectioned, step-by-step notebook instructions.
+- System shall include participant exercise template and rerun instructions.
+
+Acceptance:
+- New user can complete guided scenario start-to-finish.
+
+## 7. Non-Functional Requirements
+### NFR-1 Reproducibility
+- Fixed seeds for stochastic examples.
+- Pinned or documented dependency versions.
+
+### NFR-2 Reliability
+- Graceful failure behavior for API/network issues.
+- Clear recovery instructions.
+
+### NFR-3 Usability
+- Human-readable outputs suitable for engineering and conference audiences.
+- Minimal manual code edits required for standard workflow.
+
+### NFR-4 Portability
+- Notebook executes on local Jupyter and Colab with minor configuration differences.
+
+### NFR-5 Auditability
+- Inputs, assumptions, and generated model chain are explicit and reviewable.
+
+## 8. Constraints and Assumptions
+### Constraints
+- Primary implementation medium is Jupyter notebook.
+- LLM provider availability may vary by API access and credentials.
+- Graph visualization quality may vary by environment dependencies.
+
+### Assumptions
+- Users can provide minimally structured problem statements.
+- Users can supply at least sparse historical or elicited evidence.
+- Decision costs and horizon can be estimated with practical ranges.
+
+## 9. High-Level Design
+### 9.1 Architecture
+1. Decision Frame Layer
+- Collects problem context and decision/cost metadata.
+
+2. Parsing Layer
+- LLM prompt and response handling.
+- Converts text to structured Bayesian JSON.
+
+3. Validation Layer
+- Schema checks and dependency checks.
+- Fallback to offline JSON if parser unavailable.
+
+4. Inference and Analytics Layer
+- Prior calibration (expert/data path).
+- Bayesian update and posterior sampling.
+- VoI and Monte Carlo decision simulation.
+
+5. Visualization and Reporting Layer
+- DAG graph
+- Posterior plots
+- Cost distributions and recommendation block
+
+### 9.2 Data Contract (Target JSON)
+Top-level fields:
+- problem_summary: string
+- decision: string
+- measurement_nodes: array of node objects
+- bayesian_update_chain: ordered array of node names
+- voi_candidates: array of node names
+- model_notes: string
+
+Node fields:
 - name
 - description
 - role
@@ -202,194 +208,120 @@ Each node includes:
 - data_source
 - depends_on
 
-### 9.3 Dynamic Mapping Strategy
-- Use a distribution registry to map JSON distribution families to PyMC primitives.
-- Use dependency resolution (topological ordering) to construct node graph safely.
-- Allow formula expressions only through validated symbol tables.
-- Fail closed on unknown distributions or unresolved dependencies.
+### 9.3 Error-Handling Design
+- Missing API key: show fallback guidance and offline execution option.
+- Invalid JSON: capture parse exception and display validation report.
+- Schema failure: list failing fields and halt dependent cells.
+- Sampling instability: suggest prior tuning, draw/tune adjustments, and diagnostics.
 
-## 10. Risks and Mitigations
-1. LLM output variance
-- Mitigation: schema validation, low-temperature prompting, constrained response format, fallback JSON.
-
-2. Live workshop setup failures
-- Mitigation: preflight checklist, local fallback path, tested environment files.
-
-3. Overconfidence from sparse data
-- Mitigation: uncertainty intervals, sensitivity analysis, assumptions section.
-
-4. Dynamic model builder complexity
-- Mitigation: phased support by model family and strict test suites per family.
-
-5. Scope creep
-- Mitigation: phase gates with explicit sign-off before each next increment.
-
-## 11. Development Phases and Gates
-## Phase 0 - Program Baseline (Current)
+## 10. Phased Delivery Plan and Phase Gates
+## Phase 0: Scope Lock and Validation Framework
 Deliverables:
-- Updated requirements and design document.
-- Current notebook inventory and baseline assessment.
+- This requirements and design document
+- Phase gate checklist and acceptance matrix
+- Risk register and mitigation mapping
 
-Gate:
-- Stakeholder approval of scope, priorities, and phase order.
+Gate Criteria:
+- Stakeholder approves requirements baseline.
+- Stakeholder approves phase criteria and sequencing.
 
-## Phase 1 - Workshop Hardening
+## Phase 1: Reproducible Baseline Hardening
 Deliverables:
-- Unified setup instructions and runtime credential guidance.
-- Reliable local/Colab runbook.
-- Preflight checks (dependencies, keys, fallback readiness).
+- Clean environment runbook
+- End-to-end notebook pass in offline mode
+- Runtime blocker fixes and deterministic settings
 
-Gate:
-- Non-author dry run succeeds from clean environment.
+Gate Criteria:
+- One complete run with no manual patches mid-run.
+- Core plots/tables generated successfully.
 
-## Phase 2 - JSON Contract and Validation
+## Phase 2: Parser Reliability and Schema Hardening
 Deliverables:
-- Canonical schema and validator utilities.
-- Validation report cell and failure diagnostics.
+- Strict schema validator implementation
+- Parser robustness improvements and retry/error handling
+- Multi-scenario prompt test set
 
-Gate:
-- Approved prompt set achieves 100% schema-valid output.
+Gate Criteria:
+- 100% schema-valid outputs on approved scenario set.
 
-## Phase 3 - Dynamic Model Builder MVP
+## Phase 3: Bayesian Engine Verification
 Deliverables:
-- JSON to PyMC model builder for three approved families.
-- Symbol-safe formula evaluation.
-- Cross-checks against hardcoded reference models.
+- Analytical vs sampled posterior checks
+- EVPI and Monte Carlo verification checks
+- Edge-case test scenarios
 
-Gate:
-- MVP families pass numerical and execution tests.
+Gate Criteria:
+- Numerical checks pass agreed tolerance levels.
 
-## Phase 4 - Reusable Template and Variant Pack
+## Phase 4: Decision UX and Output Quality
 Deliverables:
-- Base notebook template.
-- At least three scenario variants using same template.
-- Variant creation checklist.
+- Refined notebook user flow and instructions
+- Improved output narratives and summary artifacts
+- Enhanced visuals for tutorial delivery
 
-Gate:
-- New variant created and validated within one development session.
+Gate Criteria:
+- Dry run by non-author user completes successfully.
 
-## Phase 5 - Tutorial Quality and Packaging
+## Phase 5: Conference Packaging
 Deliverables:
-- Workshop facilitator guide.
-- Participant quick-start and troubleshooting guide.
-- Final tutorial datasets and examples.
+- Case studies and reproducible outputs
+- Figure/table package for abstract/paper/tutorial support
+- Final tutorial execution script and references
 
-Gate:
-- Full rehearsal with timing and issue log complete.
+Gate Criteria:
+- Stakeholder approval for conference-facing release package.
 
-## Phase 6 - Research and Conference Consolidation
-Deliverables:
-- Reproducible figures/tables package.
-- Case-study narratives and technical appendices.
+## 11. Test and Validation Strategy
+### Test Types
+- Smoke test: notebook top-to-bottom execution.
+- Schema test: parser output contract checks.
+- Statistical test: posterior reasonableness and consistency.
+- Decision test: recommendation sensitivity to costs/prior shifts.
+- Usability test: guided run by target engineer user profile.
 
-Gate:
-- Stakeholder approval for external distribution.
+### Minimum Evidence per Approved Phase
+- Run logs or saved notebook outputs.
+- Short validation note: what passed, what failed, what changed.
+- Explicit go/no-go recommendation for next phase.
 
-## 12. Immediate Path Forward (Next 2 Increments)
-### Increment A (Now)
-- Freeze the canonical JSON schema.
-- Add a schema validation cell to the working notebook.
-- Add a preflight cell that checks runtime mode (OpenAI, workshop key, Ollama, offline).
+## 12. Risks and Mitigations
+1. LLM output inconsistency
+- Mitigation: strict schema validation, low-temperature settings, retries, offline fallback.
 
-### Increment B (After A Approval)
-- Implement Dynamic Model Builder MVP for Gamma-Poisson first.
-- Compare dynamic output versus existing hardcoded PyMC cell.
-- Add pass/fail assertions for posterior mean and interval sanity.
+2. Environment/package drift
+- Mitigation: dependency pinning and setup runbook.
 
-### Increment C — Robust LLM Output Handling (Implemented)
-- Field-level repair (`repair_model_json`) patches partially-valid LLM JSON
-  instead of rejecting it; preserves valid LLM content (names, descriptions,
-  justifications) and surfaces a "Repairs applied" report.
-- Parameter-name normalization (`normalize_model_parameters`) maps LLM-emitted
-  parameter spellings to canonical PyMC names per distribution family (e.g.
-  Poisson `lambda` -> `mu`, Normal `mean`/`std_dev` -> `mu`/`sigma`,
-  Gamma `scale` -> `beta = 1/scale`). Runs on every validation pass so the
-  latent downstream issues never reach the model builder.
-- Degenerate-scale guard coerces `sigma <= 0` to a small positive epsilon and
-  suggests switching to `distribution_family: 'Constant'` for true fixed values.
-- Schema expanded to accept discrete/multi-outcome families that the LLM
-  legitimately emits (Categorical, Bernoulli, DiscreteUniform, Multinomial,
-  Dirichlet, MvNormal). Dynamic builder still auto-builds only Gamma-Poisson;
-  other families pass validation and either fall back to OFFLINE_JSON or wait
-  for the generalized builder in the backlog.
+3. Misleading confidence from sparse data
+- Mitigation: explicit uncertainty intervals, sensitivity analysis, assumptions log.
 
-## 12.1 Backlog — Deferred Robustness Items
-Captured but not implemented. Each item is independent of the others except
-where noted.
+4. Visualization dependency issues
+- Mitigation: fallback layout strategy and optional dependency checks.
 
-### Backlog Item B — Build-Time Parameter Tolerance in the Dynamic Builder
-- **What**: Move parameter-spelling tolerance from the up-front normalization
-  pass into each per-family builder in the Dynamic Model Builder. Each builder
-  would accept the canonical PyMC parameter names AND a small alias set when
-  it constructs the PyMC variable, rather than relying on a JSON rewrite.
-- **Why defer**: The current notebook only auto-builds Gamma-Poisson. The
-  centralized normalization step (Increment C) covers every consumer at once.
-  Per-builder tolerance only pays off when the builder roster grows.
-- **Trigger to pull from backlog**: When the dynamic builder is generalized
-  beyond Gamma-Poisson (Phase 3 expansion), revisit whether per-builder
-  tolerance is still needed in addition to the central normalization, or
-  whether to consolidate on one location for clarity.
-- **Effort estimate**: Small per family. Larger only because it must be
-  repeated for every family the builder supports.
-- **Risk if skipped**: None today. Future risk only emerges if a builder is
-  added that legitimately needs to consume a JSON parameter spelling that the
-  central normalization step has not anticipated. The visible "Repairs
-  applied" report makes such gaps easy to find in workshop dry-runs.
+5. Scope creep before validation
+- Mitigation: hard phase gates and explicit sign-off required.
 
-### Backlog Item C — Prompt-Side Hardening of Parameter Names
-- **What**: Extend `SYSTEM_PROMPT` in the reusable primitives cell with an
-  explicit per-family table of canonical PyMC parameter names so the LLM is
-  asked to emit `Poisson: mu`, `Normal: mu/sigma`, etc. directly. This is a
-  small (~10 line) prompt addition with no code changes elsewhere.
-- **Why defer**: Increment C (already in place) makes the downstream pipeline
-  tolerant regardless of LLM behavior, so this is defense-in-depth rather
-  than a correctness fix. Also, prompt edits can have unintended effects on
-  other parts of LLM output and need a regression sweep across all three
-  scenarios in `SCENARIO_LIBRARY` before being adopted.
-- **Trigger to pull from backlog**: If a workshop dry-run shows that the
-  "Repairs applied" panel routinely contains many parameter renames and the
-  output is distracting for participants, the prompt-side fix becomes the
-  cleanest way to reduce noise. Also a natural item to ship alongside any
-  future change to `SYSTEM_PROMPT` for other reasons.
-- **Effort estimate**: Very small to write; the cost is the regression sweep
-  to confirm no scenario degrades.
-- **Risk if skipped**: None to correctness — the normalization layer makes
-  this purely cosmetic. Possible cost in workshop polish if the repair panel
-  becomes long.
-- **Interaction with B**: If Backlog Item B is pulled in first, Backlog Item
-  C becomes essentially redundant for correctness. The remaining motivation
-  for C would be reducing the visible repair-note count to keep the
-  facilitator panel clean. See Section 12.2 for the explicit dependency
-  analysis.
-
-## 12.2 Dependency Note — Is Backlog Item C Necessary If B Is Adopted?
-- **Short answer**: No, C is not necessary for correctness if B is adopted.
-  It remains worthwhile only as a workshop-UX polish item.
-- **Reasoning**:
-  - Increment C (delivered) normalizes parameter names centrally before any
-    consumer sees them. Every consumer downstream is protected.
-  - Backlog Item B would push that same tolerance into each per-family
-    builder. Either layer alone is sufficient to keep the pipeline correct.
-    Doing both is belt-and-suspenders, not additive correctness.
-  - Backlog Item C (prompt-side fix) prevents the LLM from producing the
-    near-miss spellings in the first place. Its only independent benefit
-    over B (or over the already-implemented Increment C) is that the
-    "Repairs applied" panel stays short, which matters in a live tutorial.
-- **Recommendation if B is later prioritized**:
-  - Skip C unless the workshop dry-run shows the repair-note panel is
-    visibly distracting for participants.
-  - If skipping C, document in the facilitator guide that a non-empty
-    "Repairs applied" panel is *expected and educational* — it makes the
-    tool's robustness layer visible to learners.
-
-## 13. Acceptance Evidence per Phase
-Each phase requires:
-- Reproducible run output (notebook or logs).
-- Validation summary (pass, fail, known issues).
-- Decision: approve next phase or rework current phase.
+## 13. Traceability Matrix (Requirements to Phases)
+- FR-1, FR-4, FR-9: Phase 1
+- FR-2, FR-3: Phase 2
+- FR-5, FR-6, FR-7: Phase 3
+- FR-8, FR-9: Phase 4
+- Consolidation and publication evidence: Phase 5
 
 ## 14. Review and Sign-Off
+### Review Checklist
+- Requirements complete and unambiguous
+- Acceptance criteria testable
+- Scope boundaries clear
+- Risks identified with practical mitigations
+- Phase gates reflect incremental validation workflow
+
+### Approval Log
 - Reviewer: ____________________
 - Date: ____________________
 - Decision: Approve / Approve with Changes / Rework
 - Notes: ____________________
+
+## 15. Next Increment (Pending Approval)
+Increment 0.2 proposal after your review:
+- Add a companion phase-gate checklist markdown with per-phase pass/fail boxes.
+- Begin Phase 1 baseline hardening only after approval.
